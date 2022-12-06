@@ -8,7 +8,8 @@ import org.springframework.http.HttpStatusCode;
 
 import java.util.*;
 
-public class OperationService {
+public class OperationService { /* TODO refactor - separate operationService - responsible for executing arithmetic expression given arguments and operation
+                                    and expression validator - interface holding tryValidate method, implemented differently for independent and stack. */
     private static CalculationBodyDTO calculationParams;
     private static final Set<String> supportedBinaryOperations = Set.of("plus", "minus", "times", "divide", "pow");
     private static final Set<String> supportedUnaryOperations = Set.of("fact","abs");
@@ -18,7 +19,7 @@ public class OperationService {
     }
 
     public void tryValidateOperation()  {
-        String operation = calculationParams.getOperation().toLowerCase(); // TODO Fix all this fucking logic i'm tired
+        String operation = calculationParams.getOperation().toLowerCase();
         boolean notEnoughArgs = false;
         boolean tooManyArgs = false;
         int numOfArguments = calculationParams.getArguments().size();
