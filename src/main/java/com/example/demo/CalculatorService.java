@@ -1,42 +1,38 @@
-package com.example.demo.independent;
+package com.example.demo;
 
 import com.example.demo.Exceptions.ArgumentAmountException;
 import com.example.demo.Exceptions.DivisioByZeroException;
 import com.example.demo.Exceptions.OperationNotSupported;
 import com.google.common.math.BigIntegerMath;
 import org.springframework.http.HttpStatusCode;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.*;
 
-public class OperationService { /* TODO refactor - separate operationService - responsible for executing arithmetic expression given arguments and operation
-                                    and expression validator - interface holding tryValidate method, implemented differently for independent and stack. */
-    private static CalculationBodyDTO calculationParams;
+public class CalculatorService {
+
     private static final Set<String> supportedBinaryOperations = Set.of("plus", "minus", "times", "divide", "pow");
-    private static final Set<String> supportedUnaryOperations = Set.of("fact","abs");
+    private static final Set<String> supportedUnaryOperations = Set.of("fact", "abs");
 
-    public OperationService(CalculationBodyDTO i_calculationParams) {
-        calculationParams = i_calculationParams;
-    }
 
-    public void tryValidateOperation()  {
-        String operation = calculationParams.getOperation().toLowerCase();
+    public static void tryValidateExpression(List<Integer> arguments, String operation) throws ResponseStatusException {
+        operation = operation.toLowerCase();
         boolean notEnoughArgs = false;
         boolean tooManyArgs = false;
-        int numOfArguments = calculationParams.getArguments().size();
-        if (supportedBinaryOperations.contains(operation)) {
+        int numOfArguments = arguments.size();
+        if (isBinaryOperation(operation)) {
             if (numOfArguments > 2) {
                 tooManyArgs = true;
             } else if (numOfArguments < 2) {
                 notEnoughArgs = true;
             }
-        } else if (supportedUnaryOperations.contains(operation)) {
+        } else if (isUnaryOperation(operation)) {
             if (numOfArguments > 1) {
                 tooManyArgs = true;
             } else if (numOfArguments < 1) {
                 notEnoughArgs = true;
             }
-        }
-        else {
+        } else {
             throw new OperationNotSupported(HttpStatusCode.valueOf(409), "Error: unknown operation: " + operation);
         }
         String errorMessage = "";
@@ -49,11 +45,16 @@ public class OperationService { /* TODO refactor - separate operationService - r
         if (tooManyArgs || notEnoughArgs) {
             throw new ArgumentAmountException(HttpStatusCode.valueOf(409), errorMessage);
         }
-
     }
-    public int execute() throws DivisioByZeroException {
-        String operation = calculationParams.getOperation().toLowerCase();
-        List<Integer> arguments = calculationParams.arguments;
+
+    public static boolean isUnaryOperation(String operation) {
+        return supportedUnaryOperations.contains(operation);
+    }
+
+    public static boolean isBinaryOperation(String operation) {
+        return supportedBinaryOperations.contains(operation);
+    }
+    public static int execute(List<Integer> arguments, String operation) throws DivisioByZeroException {
         Integer firstArgument = arguments.get(0);
         Integer secondArgument = arguments.size() == 2? arguments.get(1) : null;
         Integer result = null;

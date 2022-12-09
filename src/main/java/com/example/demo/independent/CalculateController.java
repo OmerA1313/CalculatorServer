@@ -1,5 +1,6 @@
 package com.example.demo.independent;
 
+import com.example.demo.CalculatorService;
 import com.example.demo.Exceptions.ArgumentAmountException;
 import com.example.demo.Exceptions.DivisioByZeroException;
 import com.example.demo.Exceptions.OperationNotSupported;
@@ -14,12 +15,10 @@ public class CalculateController {
 
     @PostMapping(value = "/calculate", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<CalcResultDTO> calculate(@RequestBody CalculationBodyDTO body) {
-        OperationService operationService = new OperationService(body);
 
-            operationService.tryValidateOperation();
-            Integer result = operationService.execute();
+            CalculatorService.tryValidateExpression(body.getArguments(), body.getOperation());
+            Integer result = CalculatorService.execute(body.arguments, body.operation);
             return ResponseEntity.ok(new CalcResultDTO(result));
-
     }
 
     @ExceptionHandler(value = {ArgumentAmountException.class, DivisioByZeroException.class, OperationNotSupported.class})
